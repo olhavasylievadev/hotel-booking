@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/olhavasylievadev/hotel-booking/internal/config"
 	"github.com/olhavasylievadev/hotel-booking/internal/driver"
@@ -153,6 +154,38 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	// send notifications, first to guest
+	htmlMessage := fmt.Sprintf(`
+		<strong>Resesrvation Confirmation</strong><br/>
+		Dear %s, <br/>
+		This is to confirm your reservation from %s to %s.
+`, reservation.FirstName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+
+	msg := models.MailData{
+		To:       reservation.Email,
+		From:     "welcome@hotel.com",
+		Subject:  "Reservation Confirmation",
+		Content:  htmlMessage,
+		Template: "basic.html",
+	}
+
+	m.App.MailChan <- msg
+
+	// send notification to a property owner
+	htmlMessage = fmt.Sprintf(`
+		<strong>Resesrvation Notification</strong><br/>
+		A reservation has been made for %s, from %s to %s.
+`, reservation.Room.RoomName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+
+	msg = models.MailData{
+		To:      "you@there.com",
+		From:    "welcome@hotel.com",
+		Subject: "Reservation Notification",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChan <- msg
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
