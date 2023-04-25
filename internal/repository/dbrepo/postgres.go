@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/olhavasylievadev/hotel-booking/internal/models"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"time"
 )
 
@@ -496,4 +497,39 @@ func (m *postgresDbRepo) GetRestrictionsForRoomByDate(roomID int, start, end tim
 	}
 
 	return restrictions, nil
+}
+
+// InsertBlockForRoom inserts a 1-day block for room (restriction)
+func (m *postgresDbRepo) InsertBlockForRoom(id int, startDate time.Time) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `
+		insert into room_restrictions (start_date, end_date, room_id, restriction_id, created_at,
+		                               updated_at) values ($1, $2, $3, $4, $5, $6)`
+
+	_, err := m.DB.ExecContext(ctx, query, startDate, startDate.AddDate(0, 0, 1), id, 2, time.Now(), time.Now())
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+// DeleteBlockByID deletes a restriction from room
+func (m *postgresDbRepo) DeleteBlockByID(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := `
+		delete from room_restrictions where id = $1`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
