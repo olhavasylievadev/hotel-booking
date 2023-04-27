@@ -15,10 +15,11 @@ func TestAddDefaultData(t *testing.T) {
 	}
 
 	session.Put(r.Context(), "flash", "123")
+
 	result := AddDefaultData(&td, r)
 
 	if result.Flash != "123" {
-		t.Error("flash value not found")
+		t.Error("flash value of 123 not found in session")
 	}
 }
 
@@ -40,17 +41,17 @@ func TestRenderTemplate(t *testing.T) {
 
 	err = Template(&ww, r, "home.page.tmpl", &models.TemplateData{})
 	if err != nil {
-		t.Error("Error writing template to browser")
+		t.Error("error writing template to browser")
 	}
 
-	err = Template(&ww, r, "absurd.page.tmpl", &models.TemplateData{})
+	err = Template(&ww, r, "non-existent.page.tmpl", &models.TemplateData{})
 	if err == nil {
-		t.Error("Rendered template that doesn't exist")
+		t.Error("rendered template that does not exist")
 	}
 }
 
 func getSession() (*http.Request, error) {
-	r, err := http.NewRequest("GET", "/something", nil)
+	r, err := http.NewRequest("GET", "/some-url", nil)
 	if err != nil {
 		return nil, err
 	}

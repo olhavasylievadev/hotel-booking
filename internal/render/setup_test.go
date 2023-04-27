@@ -16,10 +16,11 @@ var session *scs.SessionManager
 var testApp config.AppConfig
 
 func TestMain(m *testing.M) {
-	//what I'm going to put in the session
+
+	// what am I going to put in the session
 	gob.Register(models.Reservation{})
 
-	//change this to true when in production
+	// change this to true when in production
 	testApp.InProduction = false
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
