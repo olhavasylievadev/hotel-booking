@@ -62,8 +62,8 @@ func run() (*driver.DB, error) {
 	useCache := flag.Bool("cache", true, "Use template cache")
 	dbHost := flag.String("dbhost", "localhost", "Database host")
 	dbName := flag.String("dbname", "", "Database name")
-	dbUser := flag.String("dbuser", "", "Database user")
-	dbPass := flag.String("dbpass", "", "Database password")
+	dbUser := flag.String("dbuser", "olha", "Database user")
+	dbPass := flag.String("dbpass", "Ole4ka95123", "Database password")
 	dbPort := flag.String("dbport", "5433", "Database port")
 	dbSSL := flag.String("dbssl", "disable", "Database SSL settings (disable, prefer, require)")
 
